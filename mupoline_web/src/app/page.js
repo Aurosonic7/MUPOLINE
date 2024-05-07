@@ -3,7 +3,7 @@ import Carrusel from "@/components/Carrusel/Carrusel";
 export default function Home() {
   return (
     <div className="grid grid-cols-1 gap-4">
-      <div className="bg-transparent">
+      <div className="bg-transparent mt-4">
         <Carrusel></Carrusel>
       </div>
 

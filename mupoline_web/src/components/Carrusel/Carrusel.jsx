@@ -34,7 +34,7 @@ const Carrusel = () => {
   };
 
   return (
-    <div className="relative bg-cover bg-center bg-gray-100 overflow-hidden" style={{ backgroundImage: `url('/image/fondoCarrusel.png')` }}>
+    <div className="m-1 relative bg-cover bg-center" style={{ backgroundImage: `url('/image/fondoCarrusel.png')` }}>
       <div className="flex space-x-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
         {slides.map((slide, index) => (
           <div key={index} className="w-screen h-96 flex-shrink-0 flex">
@@ -52,10 +52,10 @@ const Carrusel = () => {
         ))}
 
       </div>
-      <button className="absolute inset-y-0 left-0 flex justify-center items-center w-12 text-white hover:bg-opacity-75 transition-opacity duration-500 ease-in-out" onClick={prevSlide}>
+      <button className="absolute inset-y-0 left-0 flex justify-center items-center w-12 text-white transition-opacity duration-500 ease-in-out" onClick={prevSlide}>
         &lt;
       </button>
-      <button className="absolute inset-y-0 right-0 flex justify-center items-center w-12 text-white hover:bg-opacity-75 transition-opacity duration-500 ease-in-out" onClick={nextSlide}>
+      <button className="absolute inset-y-0 right-0 flex justify-center items-center w-12 text-white transition-opacity duration-500 ease-in-out" onClick={nextSlide}>
         &gt;
       </button>
     </div>
