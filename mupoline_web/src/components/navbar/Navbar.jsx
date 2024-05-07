@@ -21,7 +21,6 @@ const Navbar = () => {
                     </div>
                     <div className="hidden md:block">
                         <div className="m-3 flex items-baseline space-x-4">
-                            {/* Aquí van tus enlaces de navegación */}
                             <a href="#" className="text-black-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Nosotros</a>
                             <a href="#" className="text-black-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" style={{backgroundColor:'#B97322'}}>LOGIN</a>
                         </div>
