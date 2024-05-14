@@ -34,12 +34,12 @@ const Carrusel = () => {
   };
 
   return (
-    <div className="m-1 relative bg-cover bg-center" style={{ backgroundImage: `url('/image/fondoCarrusel.png')` }}>
+    <div className="m-1 relative bg-cover bg-center overflow-hidden" style={{ backgroundImage: `url('/image/fondoCarrusel.png')` }}>
       <div className="flex space-x-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
         {slides.map((slide, index) => (
           <div key={index} className="w-screen h-96 flex-shrink-0 flex">
-            <div className="w-1/2 flex justify-center items-center">
-              <div className="w-3/4 h-3/4 bg-cover bg-center" style={{ backgroundImage: `url(${slide.imageUrl})` }}></div>
+            <div className="w-1/2 flex-shrink-0 overflow-hidden">
+              <img src={slide.imageUrl} alt={slide.title} className="w-full h-full object-cover" />
             </div>
             <div className="w-1/2 flex justify-center items-center">
               <div className="text-white w-3/4">
