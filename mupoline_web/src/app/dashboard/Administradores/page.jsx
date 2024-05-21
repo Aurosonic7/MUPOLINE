@@ -1,6 +1,9 @@
 "use client";
 import React, { useState } from 'react';
 import Modal from '@/components/Modal/Modal';
+import Modal2 from '@/components/Modal2/Modal2';
+import Modal2Delete from '@/components/Modal2Delete/ModalDelete';
+
 import ModalDelete from '@/components/ModalDelete/ModalDelete';
 import { HiOutlineDownload } from "react-icons/hi";
 import { MdDeleteForever, MdModeEdit } from "react-icons/md";
@@ -43,13 +46,13 @@ const Obras = () => {
 
     return (
         <div>
-            <h1 className='text-center'>Obras</h1>
+            <h1 className='text-center'>Administradores</h1>
             <div className="grid justify-items-end">
                 <button
                     className="bg-[#E3DE65] text-black px-4 py-2 mt-4 mr-10 rounded-full"
                     onClick={() => openModalAdd(true)}
                 >
-                    Agregar Obra
+                    Agregar
                 </button>
             </div>
             <div className='m-4'>
@@ -57,24 +60,19 @@ const Obras = () => {
                     <thead style={{ background: 'rgba(85, 47, 2, 0.82)' }} className="text-white">
                         <tr>
                             <th className="border border-black px-4 py-2">ID</th>
-                            <th className="border border-black px-4 py-2">Título de la obra</th>
-                            <th className="border border-black px-4 py-2">Descripción de la obra en texto</th>
-                            <th className="border border-black px-4 py-2">Descripción de la obra en audio</th>
-                            <th className="border border-black px-4 py-2">QR</th>
+                            <th className="border border-black px-4 py-2">Correo</th>
+                            <th className="border border-black px-4 py-2">Contraseña</th>
+                            <th className="border border-black px-4 py-2">Admin</th>
                             <th className="border border-black px-4 py-2">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td className="border border-black px-4 py-2">1</td>
-                            <td className="border border-black px-4 py-2">Flores en una mesa</td>
-                            <td className="border border-black px-4 py-2">Obra abstracta con fines demostrativos</td>
-                            <td className="border border-black px-4 py-2">Audio</td>
-                            <td className="px-4 py-2 flex justify-center items-center">
-                                <button style={{ background: 'rgba(185, 115, 34, 0.72)' }} className='flex items-center justify-center h-10 w-10 rounded-xl    '>
-                                    <HiOutlineDownload />
-                                </button>
-                            </td>
+                            <td className="border border-black px-4 py-2">correo2@email.com</td>
+                            <td className="border border-black px-4 py-2">*********</td>
+                            <td className="border border-black px-4 py-2">Admin</td>
+                         
                             <td className="border border-black px-4 py-2">
                                 <div className="flex items-center space-x-2">
                                     <button className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500 cursor-pointer"
@@ -93,8 +91,8 @@ const Obras = () => {
                 </table>
 
             </div>
-            <Modal isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} obra={obraToEdit} />
-            <ModalDelete isOpen={isEliminarModalOpen} onClose={closeModal} obra={obraToEdit} onConfirm={handleDelete} />
+            <Modal2 isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} obra={obraToEdit} />
+            <Modal2Delete isOpen={isEliminarModalOpen} onClose={closeModal} obra={obraToEdit} onConfirm={handleDelete} />
         </div>
     );
 };
