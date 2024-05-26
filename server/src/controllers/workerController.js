@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -7,17 +8,36 @@ export const getWorker = async (req, res) => {
     const workers = await prisma.worker.findMany();
     res.json(workers);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error getting workers" });
   } finally {
     await prisma.$disconnect();
   }
 };
 
+export const loginWorker = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const hash256 = crypto.createHash('sha256').update(password).digest('hex');
+    const worker = await prisma.worker.findFirst({ where: { email: email, password: hash256, } });
 
-export const procedureInsertWorker = async (req, res) => {
+    if (worker) res.status(200).json({ message: "Worker found", worker });
+    else res.status(404).json({ message: "Worker not found" });
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error login worker" });
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
+
+export const procedureRegisterWorker = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const result = await prisma.$executeRaw`CALL sp$worker$insert(${name}, ${email}, ${password})`;
+    const hash256 = crypto.createHash('sha256').update(password).digest('hex');
+    const result = await prisma.$executeRaw`CALL sp$worker$insert(${name}, ${email}, ${hash256})`;
     console.log(result);
     res.status(200).json({ message: "Procedimiento almacenado ejecutado correctamente" });
   }
