@@ -32,7 +32,6 @@ export const loginWorker = async (req, res) => {
   }
 };
 
-
 export const procedureRegisterWorker = async (req, res) => {
   try {
     const { name, email, password } = req.body;
