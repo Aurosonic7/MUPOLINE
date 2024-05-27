@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Modal = ({ isOpen, onClose,  isEditMode, obra  }) => {
+const ModalObra = ({ isOpen, onClose,  isEditMode, obra  }) => {
     const [titulo, setTitulo] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [archivo, setArchivo] = useState(null);
@@ -88,4 +88,4 @@ const Modal = ({ isOpen, onClose,  isEditMode, obra  }) => {
     );
 };
 
-export default Modal;
+export default ModalObra;

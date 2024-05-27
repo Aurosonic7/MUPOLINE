@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import Modal from '@/components/Modal/Modal';
-import ModalDelete from '@/components/ModalDelete/ModalDelete';
+import ModalObra from '@/app/components/Modals/ModalObra';
+import ModalDelete from '@/app/components/Modals/ModalDeleteObra';
 import { HiOutlineDownload } from "react-icons/hi";
 import { MdDeleteForever, MdModeEdit } from "react-icons/md";
 
@@ -93,8 +93,8 @@ const Obras = () => {
                 </table>
 
             </div>
-            <Modal isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} obra={obraToEdit} />
-            <ModalDelete isOpen={isEliminarModalOpen} onClose={closeModal} obra={obraToEdit} onConfirm={handleDelete} />
+            <ModalObra isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} obra={obraToEdit} />
+            <ModalDelete isOpen={isEliminarModalOpen} onClose={closeModal} obra={obra} onConfirm={handleDelete} />
         </div>
     );
 };

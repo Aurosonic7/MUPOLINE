@@ -1,11 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import Modal from '@/components/Modal/Modal';
-import Modal2 from '@/components/Modal2/Modal2';
-import Modal2Delete from '@/components/Modal2Delete/ModalDelete';
+import ModalEmpleado from '@/app/components/Modals/ModalEmpleado';
+import ModalDeleteEmpleado from '@/app/components/Modals/ModalDeleteEmpleado';
 
-import ModalDelete from '@/components/ModalDelete/ModalDelete';
-import { HiOutlineDownload } from "react-icons/hi";
 import { MdDeleteForever, MdModeEdit } from "react-icons/md";
 
 import { getWorkers, deleteWorker, registerWorker } from '@/app/api/workers';
@@ -16,7 +13,7 @@ const Trabajadores = () => {
     const [ password, setPassword ] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [obraToEdit, setObraToEdit] = useState(null);
+    const [empleadoToEdit, setempleadoToEdit] = useState(null);
     const [isEliminarModalOpen, setIsEliminarModalOpen] = useState(false);
     useEffect(() => {
         const fetchWorkers = async () => {
@@ -28,7 +25,6 @@ const Trabajadores = () => {
         fetchWorkers();
     }, []);
 
-    const obra = null;
 
     const handleInsert = async () => {
         try {
@@ -36,7 +32,7 @@ const Trabajadores = () => {
             const response = await getWorkers();
             setWorkers(response);
             setIsModalOpen(false);
-            setObraToEdit(null);
+            setempleadoToEdit(null);
             setEmail('');
             setPassword('');
             console.log('Trabajador registrado exitosamente');
@@ -48,37 +44,37 @@ const Trabajadores = () => {
     const openModalAdd = () => {
         setIsModalOpen(true);
         setIsEditMode(false);
-        setObraToEdit(null);
+        setempleadoToEdit(null);
     };
-    const openModalEdit = (obra) => {
+    const openModalEdit = (empleado) => {
         setIsModalOpen(true);
         setIsEditMode(true);
-        setObraToEdit(obra);
+        setempleadoToEdit(empleado);
     };
     const closeModal = () => {
         setIsModalOpen(false);
         setIsEditMode(false);
-        setObraToEdit(null);
+        setempleadoToEdit(null);
         setIsEliminarModalOpen(false);
     };
     const openEliminarModal = (idworker) => {
-        const obra = workers.find((worker) => worker.idworker === idworker);
+        const empleado = workers.find((worker) => worker.idworker === idworker);
         console.log(`Eliminar el trabajador con id: ${idworker}`);
         setIsEliminarModalOpen(true);
-        setObraToEdit(obra);
+        setempleadoToEdit(empleado);
     };
     const handleDelete = async () => {
-        if (!obraToEdit) {
+        if (!empleadoToEdit) {
             console.error('No hay trabajador seleccionado para eliminar');
             return;
         }
         try {
-            await deleteWorker(obraToEdit.idworker);
-            const updatedWorkers = workers.filter((worker) => worker.idworker !== obraToEdit.idworker);
+            await deleteWorker(empleadoToEdit.idworker);
+            const updatedWorkers = workers.filter((worker) => worker.idworker !== empleadoToEdit.idworker);
             setWorkers(updatedWorkers);
             setIsEliminarModalOpen(false);
-            setObraToEdit(null);
-            console.log(`Trabajador con id ${obraToEdit.idworker} eliminado exitosamente`);
+            setempleadoToEdit(null);
+            console.log(`Trabajador con id ${empleadoToEdit.idworker} eliminado exitosamente`);
         } catch (error) {
             console.error('Error al eliminar trabajador:', error);
         }
@@ -134,8 +130,8 @@ const Trabajadores = () => {
                 </table>
 
             </div>
-            <Modal2 isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} obra={obraToEdit} />
-            <Modal2Delete isOpen={isEliminarModalOpen} onClose={closeModal} obra={obraToEdit} onConfirm={handleDelete} />
+            <ModalEmpleado isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} empleado={empleadoToEdit} />
+            <ModalDeleteEmpleado isOpen={isEliminarModalOpen} onClose={closeModal} empleado={empleadoToEdit} onConfirm={handleDelete} />
         </div>
     );
 };
