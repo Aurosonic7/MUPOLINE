@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Link from 'next/link';
 const logo = '/image/LOGO.png';
 
 const Navbar = () => {
@@ -22,7 +23,9 @@ const Navbar = () => {
                     <div className="hidden md:block">
                         <div className="m-3 flex items-baseline space-x-4">
                             <a href="#" className="text-black-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Nosotros</a>
-                            <a href="#" className="text-black-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" style={{backgroundColor:'#B97322'}}>LOGIN</a>
+                            <Link href="/dashboard/login">
+                                <span className="text-black-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" style={{ backgroundColor: '#B97322' }}>LOGIN</span>
+                            </Link>
                         </div>
                     </div>
                     <div className="-mr-2 flex md:hidden">
