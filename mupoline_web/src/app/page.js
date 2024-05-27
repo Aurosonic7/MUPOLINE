@@ -7,7 +7,7 @@ export default function Home() {
         <Carrusel></Carrusel>
       </div>
 
-      <div className="bg-[#252222] relative">
+      <div className="bg-[#252222] relative" id="nosotros">
         <div className="font-poppins font-bold text-4xl text-white text-center mt-10">
           ¿Quiénes Somos?
         </div>
