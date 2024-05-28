@@ -35,17 +35,11 @@ export const loginWorker = async (req, res) => {
 export const registerWorker = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const idworker = 1;
-    const idboss = 1;
-    const name = null;
     const workerExists = await prisma.worker.findFirst({ where: { email: email } });
     if (workerExists) return res.status(400).json({ message: "Worker already exists" });
     const hash256 = crypto.createHash('sha256').update(password).digest('hex');
     const newWorker = await prisma.worker.create({
       data: {
-        idworker,
-        idboss,
-        name,
         email,
         password: hash256 
       }
@@ -62,7 +56,7 @@ export const registerWorker = async (req, res) => {
 export const deleteWorker = async (req, res) => {
   try {
     const { id } = req.params;
-    const worker = await prisma.worker.delete({ where: { idworker: parseInt(id) } });
+    const worker = await prisma.worker.delete({ where: { id: parseInt(id) } });
     res.status(200).json({ message: "Worker deleted", worker });
   } catch (error) {
     console.error(error);

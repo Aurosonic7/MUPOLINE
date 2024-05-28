@@ -69,12 +69,12 @@ const Trabajadores = () => {
             return;
         }
         try {
-            await deleteWorker(empleadoToEdit.idworker);
-            const updatedWorkers = workers.filter((worker) => worker.idworker !== empleadoToEdit.idworker);
+            await deleteWorker(empleadoToEdit.id);
+            const updatedWorkers = workers.filter((worker) => worker.id !== empleadoToEdit.id);
             setWorkers(updatedWorkers);
             setIsEliminarModalOpen(false);
             setempleadoToEdit(null);
-            console.log(`Trabajador con id ${empleadoToEdit.idworker} eliminado exitosamente`);
+            console.log(`Trabajador con id ${empleadoToEdit.id} eliminado exitosamente`);
         } catch (error) {
             console.error('Error al eliminar trabajador:', error);
         }
@@ -108,12 +108,12 @@ const Trabajadores = () => {
                                 <td className="border border-black px-4 py-2">{worker.id}</td>
                                 <td className="border border-black px-4 py-2">{worker.email}</td>
                                 <td className="border border-black px-4 py-2">{worker.password}</td>
-                                <td className="border border-black px-4 py-2">{worker.idboss === worker.idworker ? 'Admin' : 'No admin'}</td>
+                                <td className="border border-black px-4 py-2">{worker.isAdmin ? 'Admin' : 'No admin'}</td>
                                 <td className="border border-black px-4 py-2">
                                     <div className="flex items-center space-x-2">
-                                        {worker.idboss !== worker.idworker && (
+                                        {worker.isAdmin !== true && (
                                         <button type="submit" className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500 cursor-pointer"
-                                            onClick={() => openEliminarModal(worker.idworker)}>
+                                            onClick={() => openEliminarModal(worker.id)}>
                                             <MdDeleteForever className="text-white" />
                                         </button>
                                         )}
