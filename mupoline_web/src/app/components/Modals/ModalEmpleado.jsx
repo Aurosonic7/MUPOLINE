@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 const ModalEmpleado = ({ isOpen, onClose,  isEditMode, obra  }) => {
     const [email, setemail] = useState('');
     const [password, setpassword] = useState('');
+    const [password2, setpassword2] = useState('');
 
     const handleemailChange = (e) => {
         setemail(e.target.value);
@@ -10,6 +11,10 @@ const ModalEmpleado = ({ isOpen, onClose,  isEditMode, obra  }) => {
 
     const handlepasswordChange = (e) => {
         setpassword(e.target.value);
+    };
+    
+    const handlepassword2Change = (e) => {
+        setpassword2(e.target.value);
     };
 
     const handleSubmit = (e) => {
@@ -41,27 +46,29 @@ const ModalEmpleado = ({ isOpen, onClose,  isEditMode, obra  }) => {
 
                             <div className="grid grid-cols-3 gap-x-4 mb-4">
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 self-center col-span-1">password</label>
-                                <textarea
+                                <input
                                     id="password"
                                     value={password}
                                     onChange={handlepasswordChange}
+                                    type="password"
                                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm col-span-2"
                                     style={{ background: '#E6E6E6', border: '0.3px solid #000000' }}
                                     required
-                                ></textarea>
+                                ></input>
                             </div>
 
 
                             <div className="grid grid-cols-3 gap-x-4 mb-4">
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 self-center col-span-1">Confirmar password</label>
-                                <textarea
-                                    id="password"
-                                    value={password}
-                                    onChange={handlepasswordChange}
+                                <input
+                                    id="password2"
+                                    value={password2}
+                                    onChange={handlepassword2Change}
+                                    type="password"
                                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm col-span-2"
                                     style={{ background: '#E6E6E6', border: '0.3px solid #000000' }}
                                     required
-                                ></textarea>
+                                ></input>
                             </div>
 
                             <div className="flex justify-end">

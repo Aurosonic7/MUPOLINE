@@ -58,7 +58,7 @@ const Trabajadores = () => {
         setIsEliminarModalOpen(false);
     };
     const openEliminarModal = (idworker) => {
-        const empleado = workers.find((worker) => worker.idworker === idworker);
+        const empleado = workers.find((worker) => worker.id === idworker);
         console.log(`Eliminar el trabajador con id: ${idworker}`);
         setIsEliminarModalOpen(true);
         setempleadoToEdit(empleado);
@@ -105,7 +105,7 @@ const Trabajadores = () => {
 
                         {workers.map((worker, key) => (
                             <tr key={key}>
-                                <td className="border border-black px-4 py-2">{worker.idworker}</td>
+                                <td className="border border-black px-4 py-2">{worker.id}</td>
                                 <td className="border border-black px-4 py-2">{worker.email}</td>
                                 <td className="border border-black px-4 py-2">{worker.password}</td>
                                 <td className="border border-black px-4 py-2">{worker.idboss === worker.idworker ? 'Admin' : 'No admin'}</td>

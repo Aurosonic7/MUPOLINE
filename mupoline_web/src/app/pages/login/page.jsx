@@ -17,7 +17,7 @@ const Login = () => {
             localStorage.setItem('token', response.token);
             localStorage.setItem('worker', JSON.stringify(response.worker));
             // console.log(response);
-            router.push('/dashboard/Administradores');
+            router.push('/pages/Administradores');
         }
     };
 
