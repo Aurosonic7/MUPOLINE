@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export const getWorker = async (req, res) => {
   try {
     const workers = await prisma.worker.findMany();
-    res.json(workers);
+    res.status(200).json(workers);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error getting workers" });
@@ -32,51 +32,41 @@ export const loginWorker = async (req, res) => {
   }
 };
 
-export const procedureRegisterWorker = async (req, res) => {
+export const registerWorker = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { email, password } = req.body;
+    const idworker = 1;
+    const idboss = 1;
+    const name = null;
+    const workerExists = await prisma.worker.findFirst({ where: { email: email } });
+    if (workerExists) return res.status(400).json({ message: "Worker already exists" });
     const hash256 = crypto.createHash('sha256').update(password).digest('hex');
-    const result = await prisma.$executeRaw`CALL sp$worker$insert(${name}, ${email}, ${hash256})`;
-    console.log(result);
-    res.status(200).json({ message: "Procedimiento almacenado ejecutado correctamente" });
-  }
-  catch (error) {
+    const newWorker = await prisma.worker.create({
+      data: {
+        idworker,
+        idboss,
+        name,
+        email,
+        password: hash256 
+      }
+    });
+    res.status(201).json({ message: "Worker created", newWorker });
+  } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error execute procedure stored" });
+    res.status(500).json({ message: "Error creating worker" });
   } finally {
     await prisma.$disconnect();
   }
 };
 
-export const procedureUpdateWorker = async (req, res) => {
+export const deleteWorker = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, password } = req.body;
-    const nameNull = name ? name : null;
-    const emailNull = email ? email : null;
-    const passwordNull = password ? password : null;
-    const result = await prisma.$executeRaw`CALL sp$worker$update(${id}, ${nameNull}, ${emailNull}, ${passwordNull})`;
-    console.log(result);
-    res.status(200).json({ message: "Procedimiento almacenado ejecutado correctamente" });
-  }
-  catch (error) {
+    const worker = await prisma.worker.delete({ where: { idworker: parseInt(id) } });
+    res.status(200).json({ message: "Worker deleted", worker });
+  } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error execute procedure stored" });
-  } finally {
-    await prisma.$disconnect();
-  }
-};
-
-export const procedureDeleteWorker = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await prisma.$executeRaw`CALL sp$worker$delete(${id})`;
-    console.log(result);
-    res.status(200).json({ message: "Procedimiento almacenado ejecutado correctamente" });
-  }
-  catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error execute procedure stored" });
+    res.status(500).json({ message: "Error deleting worker" });
   } finally {
     await prisma.$disconnect();
   }

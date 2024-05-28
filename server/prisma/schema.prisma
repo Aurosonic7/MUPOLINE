@@ -8,30 +8,29 @@ datasource db {
 }
 
 model Artwork {
-  idartwork   Int      @id
+  id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(50)
   description String   @db.VarChar(120)
   audio       Bytes?
   image       Bytes?
-  idworker    Int
-  createat    DateTime @default(now()) @db.Timestamp(0)
-  updateat    DateTime @default(now()) @db.Timestamp(0)
-  Worker      Worker   @relation(fields: [idworker], references: [idworker], onDelete: NoAction, onUpdate: NoAction, map: "FK$ARTWORK$WORKER$ID")
 
-  @@index([idworker], map: "FK$ARTWORK$WORKER$ID")
+  workerid    Int  //! many to one relation
+  worker      Worker @relation(fields: [workerid], references: [id])  //! Relation to Worker model
+  
+  createat    DateTime @default(now())
+  updateat    DateTime @default(now())
+
 }
 
 model Worker {
-  idworker     Int       @id
-  idboss       Int
-  name         String?   @db.VarChar(50)
-  email        String    @unique(map: "UK$WORKER$EMAIL") @db.VarChar(50)
-  password     String    @db.VarChar(120)
-  createat     DateTime  @default(now()) @db.Timestamp(0)
-  updateat     DateTime  @default(now()) @db.Timestamp(0)
-  Artwork      Artwork[]
-  Worker       Worker    @relation("WorkerToWorker", fields: [idboss], references: [idworker], onDelete: NoAction, onUpdate: NoAction, map: "FK$WORKER$BOSS$ID")
-  other_Worker Worker[]  @relation("WorkerToWorker")
+  id           Int       @id @default(autoincrement())
+  name         String?
+  email        String    @unique()
+  password     String
+  isAdmin      Boolean   @default(false)
+  artwork      Artwork[]  //! One to many relation
 
-  @@index([idboss], map: "FK$WORKER$BOSS$ID")
+  createat     DateTime  @default(now())
+  updateat     DateTime  @default(now())
+  
 }

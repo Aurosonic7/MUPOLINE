@@ -1,9 +1,8 @@
 import { 
   getWorker, 
   loginWorker,
-  procedureRegisterWorker, 
-  procedureUpdateWorker, 
-  procedureDeleteWorker, 
+  registerWorker, 
+  deleteWorker,
 } from '../controllers/workerController.js';
 import { Router } from 'express';
 
@@ -11,8 +10,7 @@ const router = Router();
 
 router.route('/').get(getWorker);
 router.route('/login').post(loginWorker);
-router.route('/register').post(procedureRegisterWorker);
-router.route('/:id').put(procedureUpdateWorker);
-router.route('/:id').delete(procedureDeleteWorker);
+router.route('/register').post(registerWorker);
+router.route('/:id').delete(deleteWorker);
 
 export default router;
