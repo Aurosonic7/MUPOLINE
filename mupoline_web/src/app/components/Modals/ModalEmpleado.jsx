@@ -2,11 +2,20 @@
 import React, { useState, useEffect } from 'react';
 import { registerWorker, updateWorker } from '@/app/api/workers';
 
-const ModalEmpleado = ({ isOpen, onClose, isEditMode, obra }) => {
+const ModalEmpleado = ({ isOpen, onClose, isEditMode, empleado }) => {
     const [email, setemail] = useState('');
     const [password, setpassword] = useState('');
     const [password2, setpassword2] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const empleadoId = empleado ? empleado.id : null;
+
+    useEffect(() => {
+        if (isEditMode) {
+            setemail(empleado.email);
+            setpassword(empleado.password);
+            setpassword2(empleado.password);
+        }
+    }, [empleado]);
 
     const handleemailChange = (e) => {
         setemail(e.target.value);
@@ -19,32 +28,45 @@ const ModalEmpleado = ({ isOpen, onClose, isEditMode, obra }) => {
     const handlepassword2Change = (e) => {
         setpassword2(e.target.value);
     };
-    
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if(password !== password2){
+        if (password !== password2) {
             alert('Las contraseñas no coinciden');
             return;
         }
 
         try {
-            await registerWorker(email, password);
-            setSuccessMessage('Usuario registrado');
+            if (isEditMode) {
+                await updateWorker(empleadoId, email, password);
+                setSuccessMessage('Usuario actualizado');
+            } else {
+                await registerWorker(email, password);
+                setSuccessMessage('Usuario registrado');
+            }
             window.location.reload();
         } catch (error) {
-            console.error(error);
+            if (error.response) {
+                // La solicitud fue hecha y el servidor respondió con un estado de error
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                // La solicitud fue hecha pero no se recibió ninguna respuesta
+                console.log(error.request);
+            } else {
+                // Algo sucedió en la configuración de la solicitud que provocó un error
+                console.log('Error', error.message);
+            }
+            console.log(error.config);
         }
 
         console.log('email:', email);
         console.log('password:', password);
         onClose();
     };
-
-    useEffect(() => {
-
-    }, []);
 
     return (
         <>
