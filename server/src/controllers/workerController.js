@@ -65,3 +65,18 @@ export const deleteWorker = async (req, res) => {
     await prisma.$disconnect();
   }
 };
+
+export const updateWorker = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, password } = req.body;
+    const hash256 = crypto.createHash('sha256').update(password).digest('hex');
+    const updatedWorker = await prisma.worker.update({ where: { id: parseInt(id) }, data: { email, password: hash256 } });
+    res.status(200).json({ message: "Worker updated", updatedWorker });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating worker" });
+  } finally {
+    await prisma.$disconnect();
+  }
+};

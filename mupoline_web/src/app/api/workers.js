@@ -39,3 +39,13 @@ export const deleteWorker = async (id) => {
     return null;
   }
 };
+
+export const updateWorker = async (id, email, password) => {
+  try {
+    const response = await axios.put(`/workers/${id}`, { email, password });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};

@@ -5,12 +5,11 @@ import ModalDeleteEmpleado from '@/app/components/Modals/ModalDeleteEmpleado';
 
 import { MdDeleteForever, MdModeEdit } from "react-icons/md";
 
-import { getWorkers, deleteWorker, registerWorker } from '@/app/api/workers';
+import { getWorkers, deleteWorker, registerWorker, updateWorker } from '@/app/api/workers';
 
 const Trabajadores = () => {
     const [workers, setWorkers] = useState([]);
-    const [ email, setEmail ] = useState('');
-    const [ password, setPassword ] = useState('');
+    
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [empleadoToEdit, setempleadoToEdit] = useState(null);
@@ -25,21 +24,6 @@ const Trabajadores = () => {
         fetchWorkers();
     }, []);
 
-
-    const handleInsert = async () => {
-        try {
-            await registerWorker(email, password);
-            const response = await getWorkers();
-            setWorkers(response);
-            setIsModalOpen(false);
-            setempleadoToEdit(null);
-            setEmail('');
-            setPassword('');
-            console.log('Trabajador registrado exitosamente');
-        } catch (error) {
-            console.error('Error al registrar trabajador:', error);
-        }
-    };
 
     const openModalAdd = () => {
         setIsModalOpen(true);
@@ -77,6 +61,23 @@ const Trabajadores = () => {
             console.log(`Trabajador con id ${empleadoToEdit.id} eliminado exitosamente`);
         } catch (error) {
             console.error('Error al eliminar trabajador:', error);
+        }
+    };
+
+    const handleUpdate = async (workerToUpdate) => {
+        if (!workerToUpdate) {
+            console.error('No hay trabajador seleccionado para actualizar');
+            return;
+        }
+        try {
+            await updateWorker(workerToUpdate.id, workerToUpdate.email, workerToUpdate.password);
+            const updatedWorkers = workers.map((worker) =>
+                worker.id === workerToUpdate.id ? workerToUpdate : worker
+            );
+            setWorkers(updatedWorkers);
+            console.log(`Trabajador con id ${workerToUpdate.id} actualizado exitosamente`);
+        } catch (error) {
+            console.error('Error al actualizar trabajador:', error);
         }
     };
 
@@ -130,7 +131,7 @@ const Trabajadores = () => {
                 </table>
 
             </div>
-            <ModalEmpleado isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} empleado={empleadoToEdit} />
+            <ModalEmpleado isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} empleado={empleadoToEdit} onUpdate={handleUpdate} />
             <ModalDeleteEmpleado isOpen={isEliminarModalOpen} onClose={closeModal} empleado={empleadoToEdit} onConfirm={handleDelete} />
         </div>
     );
