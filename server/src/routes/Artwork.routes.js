@@ -1,24 +1,35 @@
-import {
-  getArtwork,
-  procedureRegisterArtwork,
-  procedureDeleteArtwork,
-  uploadArtwork,
-  getArtworks
-} from '../controllers/artworkController.js';
+import express from 'express';
 import multer from 'multer';
+import { getAllArtworks, createArtwork, updateArtwork,
+  deleteArtwork,  } from '../controllers/artworkController.js';
 
-import { Router } from 'express';
+const router = express.Router();
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const storage = multer.diskStorage({ 
+  destination: (req, file, cb) => { cb(null, 'uploads/'); },
+  filename: (req, file, cb) => { cb(null, `${Date.now()}-${file.originalname}`); },
+});
 
-const router = Router();
+const fileFilter = (req, file, cb) => {
+  console.log(`Received field: ${file.fieldname}`);
+  const allowedFields = ['audio', 'image'];
+  if (!allowedFields.includes(file.fieldname)) {
+    return cb(new Error(`Unexpected field ${file.fieldname}`));
+  }
+  cb(null, true);
+};
 
-router.route('/').get(getArtwork);
-router.route('/register').post(procedureRegisterArtwork);
-router.route('/:id').delete(procedureDeleteArtwork);
 
-router.post('/upload', upload.single('image'), uploadArtwork);
-router.get('/:id', getArtworks);
+const upload = multer({ storage, fileFilter });
+
+router.get('/', getAllArtworks);
+router.post('/', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'image', maxCount: 1 }]), 
+(req, res, next) => {
+  console.log('Files:', req.files);
+  console.log('Body:', req.body);
+  next();
+}, createArtwork);
+router.put('/:id', upload.fields([{ name: 'audio', maxCount: 1 }]), updateArtwork);
+router.delete('/:id', deleteArtwork);
 
 export default router;

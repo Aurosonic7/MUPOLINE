@@ -11,8 +11,8 @@ model Artwork {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(50)
   description String   @db.VarChar(120)
-  audio       Bytes?
-  image       Bytes?
+  audio       String?
+  image       String?
 
   workerid    Int  //! many to one relation
   worker      Worker @relation(fields: [workerid], references: [id])  //! Relation to Worker model

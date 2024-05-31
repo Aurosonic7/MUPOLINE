@@ -1,102 +1,99 @@
-import { PrismaClient } from '@prisma/client';
-import multer from 'multer';
-
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export const getArtwork = async (req, res) => {
+// Obtener todas las obras de arte
+export const getAllArtworks = async (req, res) => {
   try {
-    const artwork = await prisma.artwork.findMany();
-    res.json(artwork);
+    const artworks = await prisma.artwork.findMany({ include: { worker: true } });
+    res.json(artworks);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error getting artwork" });
-  } finally {
-    await prisma.$disconnect();
+    res.status(500).json({ error: error.message });
   }
 };
 
-export const procedureRegisterArtwork = async (req, res) => {
-  try {
-    const { title, description, audio, image, idworker } = req.body;
-    const result = await prisma.$executeRaw`CALL sp$artwork$insert(${title}, ${description}, ${audio}, ${image}, ${idworker})`;
-    console.log(result);
-    res.status(200).json({ message: "Procedimiento almacenado ejecutado correctamente" });
-  }
-  catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error execute procedure stored" });
-  } finally {
-    await prisma.$disconnect();
-  }
-};
+// Crear una nueva obra de arte
+export const createArtwork = async (req, res) => {
+  const { title, description, workerid } = req.body;
+  const audio = req.files.audio ? req.files.audio[0].path : null;
+  const image = req.files.image ? req.files.image[0].path : null;
 
-export const procedureDeleteArtwork = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await prisma.$executeRaw`CALL sp$artwork$delete(${id})`;
-    console.log(result);
-    res.status(200).json({ message: "Procedimiento almacenado ejecutado correctamente" });
-  }
-  catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error execute procedure stored" });
-  } finally {
-    await prisma.$disconnect();
-  }
-};
-
-export const uploadArtwork = async (req, res) => {
-  try {
-    const { title, description } = req.body;
-    const image = req.file ? req.file.buffer : null;
-
     const newArtwork = await prisma.artwork.create({
       data: {
         title,
         description,
+        audio,
         image,
-        createat: new Date(),
+        workerid: parseInt(workerid),
+      },
+    });
+
+    // Construir la URL completa para la imagen y el audio
+    const response = {
+      ...newArtwork,
+      audioUrl: audio ? `${req.protocol}://${req.get('host')}/${audio}` : null,
+      imageUrl: image ? `${req.protocol}://${req.get('host')}/${image}` : null,
+    };
+
+    res.status(201).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Actualizar una obra de arte existente
+export const updateArtwork = async (req, res) => {
+  const { id } = req.params;
+  const { title, description, workerid } = req.body;
+  const audio = req.files && req.files.audio ? req.files.audio[0].path : null;
+  const image = req.files && req.files.image ? req.files.image[0].path : null;
+
+  try {
+    const existingArtwork = await prisma.artwork.findUnique({ where: { id: Number(id) } });
+
+    if (!existingArtwork) {
+      return res.status(404).json({ error: 'Artwork not found' });
+    }
+
+    const updatedArtwork = await prisma.artwork.update({
+      where: { id: Number(id) },
+      data: {
+        title,
+        description,
+        audio: audio ? audio : existingArtwork.audio,
+        image: image ? image : existingArtwork.image,
+        workerid: parseInt(workerid),
         updateat: new Date(),
       },
     });
 
-    res.status(201).json(newArtwork);
+    // Construir la URL completa para la imagen y el audio
+    const response = {
+      ...updatedArtwork,
+      audioUrl: audio ? `${req.protocol}://${req.get('host')}/${audio}` : existingArtwork.audio,
+      imageUrl: image ? `${req.protocol}://${req.get('host')}/${image}` : existingArtwork.image,
+    };
+
+    res.json(response);
   } catch (error) {
-    console.error("Error al subir la obra de arte:", error);
-    res.status(500).json({ error: 'Failed to upload artwork', details: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
+// Eliminar una obra de arte
+export const deleteArtwork = async (req, res) => {
+  const { id } = req.params;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Obtener una obra de arte por ID
-export const getArtworks = async (req, res) => {
   try {
-    const { id } = req.params;
-    const artwork = await prisma.artwork.findUnique({
-      where: { idartwork: parseInt(id) },
-    });
+    const existingArtwork = await prisma.artwork.findUnique({ where: { id: Number(id) } });
 
-    if (!artwork) {
+    if (!existingArtwork) {
       return res.status(404).json({ error: 'Artwork not found' });
     }
 
-    res.status(200).json(artwork);
+    await prisma.artwork.delete({ where: { id: Number(id) } });
+    res.status(204).send();
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve artwork' });
+    res.status(500).json({ error: error.message });
   }
 };
