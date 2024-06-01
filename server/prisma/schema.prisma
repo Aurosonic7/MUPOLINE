@@ -10,7 +10,7 @@ datasource db {
 model Artwork {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(50)
-  description String   @db.VarChar(120)
+  description String   @db.VarChar(1000)
   audio       String?
   image       String?
 
