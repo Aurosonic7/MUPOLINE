@@ -11,9 +11,10 @@ const Carrusel = () => {
       try {
         const artworks = await getAllArtworks();
         console.log(artworks);
-        setObras(artworks);
+        setObras(Array.isArray(artworks) ? artworks : []); // Asegúrate de que sea un array
       } catch (error) {
         console.error('Failed to fetch artworks', error);
+        setObras([]); // Maneja el error estableciendo un array vacío
       }
     };
 
@@ -30,28 +31,36 @@ const Carrusel = () => {
 
   return (
     <div className="m-1 relative bg-cover bg-center overflow-hidden" style={{ backgroundImage: `url('/image/fondoCarrusel.png')` }}>
-      <div className="flex space-x-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-        {obras.map((obra, index) => (
-          <div key={index} className="w-screen h-96 flex-shrink-0 flex">
-            <div className="w-1/2 flex-shrink-0 overflow-hidden">
-              <img src={`http://localhost:5001/${obra.image}`} alt={obra.title} className="w-full h-full object-cover" />
-            </div>
-            <div className="w-1/2 flex justify-center items-center">
-              <div className="text-white w-3/4">
-                <h2 className="text-4xl font-bold" style={{ fontFamily: 'Inter', fontStyle: 'normal', fontWeight: 400, fontSize: '35px', lineHeight: '42px', display: 'flex', alignItems: 'center', color: '#000000' }}>{obra.title}</h2>
-                <p className="text-xl" style={{ fontFamily: 'Inter', fontStyle: 'normal', fontWeight: 400, fontSize: '15px', lineHeight: '18px', display: 'flex', alignItems: 'center', color: '#000000' }}>Autor: {obra.author}</p>
-                <p className="text-lg" style={{ fontFamily: 'Inter', fontStyle: 'normal', fontWeight: 400, fontSize: '16px', lineHeight: '19px', display: 'flex', alignItems: 'center', color: '#000000' }}>{obra.description}</p>
+      {obras.length > 0 ? (
+        <>
+          <div className="flex space-x-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+            {obras.map((obra, index) => (
+              <div key={index} className="w-screen h-96 flex-shrink-0 flex">
+                <div className="w-1/2 flex-shrink-0 overflow-hidden">
+                  <img src={`http://localhost:5001/${obra.image}`} alt={obra.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="w-1/2 flex justify-center items-center">
+                  <div className="text-white w-3/4">
+                    <h2 className="text-4xl font-bold" style={{ fontFamily: 'Inter', fontStyle: 'normal', fontWeight: 400, fontSize: '35px', lineHeight: '42px', display: 'flex', alignItems: 'center', color: '#000000' }}>{obra.title}</h2>
+                    <p className="text-xl" style={{ fontFamily: 'Inter', fontStyle: 'normal', fontWeight: 400, fontSize: '15px', lineHeight: '18px', display: 'flex', alignItems: 'center', color: '#000000' }}>Autor: {obra.author}</p>
+                    <p className="text-lg" style={{ fontFamily: 'Inter', fontStyle: 'normal', fontWeight: 400, fontSize: '16px', lineHeight: '19px', display: 'flex', alignItems: 'center', color: '#000000' }}>{obra.description}</p>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <button className="absolute inset-y-0 left-0 flex justify-center items-center w-12 text-white transition-opacity duration-500 ease-in-out" onClick={prevSlide}>
-        &lt;
-      </button>
-      <button className="absolute inset-y-0 right-0 flex justify-center items-center w-12 text-white transition-opacity duration-500 ease-in-out" onClick={nextSlide}>
-        &gt;
-      </button>
+          <button className="absolute inset-y-0 left-0 flex justify-center items-center w-12 text-white transition-opacity duration-500 ease-in-out" onClick={prevSlide}>
+            &lt;
+          </button>
+          <button className="absolute inset-y-0 right-0 flex justify-center items-center w-12 text-white transition-opacity duration-500 ease-in-out" onClick={nextSlide}>
+            &gt;
+          </button>
+        </>
+      ) : (
+        <div className="w-screen h-96 flex-shrink-0 flex justify-center items-center">
+          <p className="text-white">No hay obras disponibles.</p>
+        </div>
+      )}
     </div>
   );
 };
