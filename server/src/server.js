@@ -17,7 +17,11 @@ server.set('host_front', process.env.HOST_FRONT || 'localhost');
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 server.use(express.static('public'));
-server.use(cors({ origin: `http://${server.get('host_front')}:${server.get('port_front')}`, credentials: true }));
+const corsOptions = {
+  origin: `http://${server.get('host_front')}:${server.get('port_front')}`,
+  credentials: true,
+};
+server.use(cors(corsOptions));
 server.use(morgan('dev'));
 
 // Routes
