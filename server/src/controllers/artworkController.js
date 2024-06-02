@@ -37,15 +37,31 @@ export const createArtwork = async (req, res) => {
       image: req.files.image ? req.files.image[0] : null,
       audio: req.files.audio ? req.files.audio[0] : null
     };
+    if (!workerid) {
+      if (files.image) fs.unlinkSync(`./public/uploads/${files.image.filename}`);
+      if (files.audio) fs.unlinkSync(`./public/uploads/${files.audio.filename}`);
+      return res.status(400).json({ status: false, errors: 'Worker ID is required' });
+    }
+    const existingWorker = await prisma.worker.findUnique({ where: { id: parseInt(workerid) } });
+    if (!existingWorker) {
+      if (files.image) fs.unlinkSync(`./public/uploads/${files.image.filename}`);
+      if (files.audio) fs.unlinkSync(`./public/uploads/${files.audio.filename}`);
+      return res.status(400).json({ status: false, errors: 'Worker ID does not exist' });
+    }
     const validErrors = valid(title, description, workerid, files, true);
-
     if (validErrors) {
       if (files.image) fs.unlinkSync(`./public/uploads/${files.image.filename}`);
       if (files.audio) fs.unlinkSync(`./public/uploads/${files.audio.filename}`);
       return res.status(400).json({ status: false, errors: validErrors });
     }
     const newArtwork = await prisma.artwork.create({ 
-      data: { title, description, workerid: parseInt(workerid), image: files.image.filename, audio: files.audio.filename, } 
+      data: { 
+        title, 
+        description, workerid: 
+        parseInt(workerid), 
+        image: files.image.filename, 
+        audio: files.audio.filename, 
+      } 
     });
     res.status(201).json({ status: true, message: 'Artwork created', newArtwork });
   } catch (error) {
