@@ -10,8 +10,6 @@ export const getWorker = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error getting workers" });
-  } finally {
-    await prisma.$disconnect();
   }
 };
 
@@ -19,37 +17,48 @@ export const loginWorker = async (req, res) => {
   try {
     const { email, password } = req.body;
     const hash256 = crypto.createHash('sha256').update(password).digest('hex');
-    const worker = await prisma.worker.findFirst({ where: { email: email, password: hash256, } });
-
-    if (worker) res.status(200).json({ message: "Worker found", worker });
-    else res.status(404).json({ message: "Worker not found" });
-    
+    const worker = await prisma.worker.findUnique({ where: { email } });
+    if (!worker) return res.status(404).json({ message: "Worker not found" });
+    if (worker.password !== hash256) return res.status(400).json({ message: "Incorrect password" });
+    res.status(200).json({ message: "Worker found", worker });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error login worker" });
-  } finally {
-    await prisma.$disconnect();
   }
 };
 
 export const registerWorker = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const workerExists = await prisma.worker.findFirst({ where: { email: email } });
+    if (!password) return res.status(400).json({ message: "Password is required" });
+    const workerExists = await prisma.worker.findFirst({ where: { email } });
     if (workerExists) return res.status(400).json({ message: "Worker already exists" });
     const hash256 = crypto.createHash('sha256').update(password).digest('hex');
-    const newWorker = await prisma.worker.create({
-      data: {
-        email,
-        password: hash256 
-      }
-    });
+    const newWorker = await prisma.worker.create({ data: { email, password: hash256, } });
     res.status(201).json({ message: "Worker created", newWorker });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error creating worker" });
-  } finally {
-    await prisma.$disconnect();
+  }
+};
+
+export const updateWorker = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, password } = req.body;
+    const worker = await prisma.worker.findUnique({ where: { id: parseInt(id) } });
+    if (!worker) return res.status(404).json({ message: "Worker not found" });
+    let updatedData = {};
+    if (email) updatedData.email = email;
+    if (password) {
+      const hash256 = crypto.createHash('sha256').update(password).digest('hex');
+      updatedData.password = hash256;
+    }
+    const updatedWorker = await prisma.worker.update({ where: { id: parseInt(id) }, data: updatedData });
+    res.status(200).json({ message: "Worker updated", updatedWorker });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating worker" });
   }
 };
 
@@ -61,22 +70,16 @@ export const deleteWorker = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error deleting worker" });
-  } finally {
-    await prisma.$disconnect();
   }
 };
 
-export const updateWorker = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { email, password } = req.body;
-    const hash256 = crypto.createHash('sha256').update(password).digest('hex');
-    const updatedWorker = await prisma.worker.update({ where: { id: parseInt(id) }, data: { email, password: hash256 } });
-    res.status(200).json({ message: "Worker updated", updatedWorker });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error updating worker" });
-  } finally {
-    await prisma.$disconnect();
-  }
-};
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await prisma.$disconnect();
+  process.exit();
+});
+
+process.on('SIGTERM', async () => {
+  await prisma.$disconnect();
+  process.exit();
+});

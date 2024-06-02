@@ -8,29 +8,28 @@ datasource db {
 }
 
 model Artwork {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(50)
-  description String   @db.VarChar(1000)
-  audio       String?
-  image       String?
+  id          Int     @id @default(autoincrement())
+  title       String  @db.VarChar(100)
+  description String  @db.VarChar(255)
+  audio       String? @db.VarChar(255)
+  image       String? @db.VarChar(255)
+  workerid    Int //! many to one relation
 
-  workerid    Int  //! many to one relation
-  worker      Worker @relation(fields: [workerid], references: [id])  //! Relation to Worker model
-  
-  createat    DateTime @default(now())
-  updateat    DateTime @default(now())
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
+  worker Worker @relation(fields: [workerid], references: [id]) //! Relation to Worker model
 }
 
 model Worker {
-  id           Int       @id @default(autoincrement())
-  name         String?
-  email        String    @unique()
-  password     String
-  isAdmin      Boolean   @default(false)
-  artwork      Artwork[]  //! One to many relation
+  id       Int     @id @default(autoincrement())
+  name     String? @db.VarChar(100)
+  email    String  @unique()
+  password String  @db.VarChar(255)
+  isAdmin  Boolean @default(false)
 
-  createat     DateTime  @default(now())
-  updateat     DateTime  @default(now())
-  
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  artwork Artwork[] //! One to many relation
 }

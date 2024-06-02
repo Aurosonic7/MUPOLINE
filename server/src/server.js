@@ -2,28 +2,30 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 
-import workerRoutes from './routes/Worker.routes.js';
-import artworkRouter from './routes/Artwork.routes.js';
+import workerRoutes from './router/Worker.routes.js';
+import artworkRouter from './router/Artwork.routes.js';
 
 const server = express();
-const URI = process.env.DATABASE_URL ? process.env.DATABASE_URL : "mysql://root:12345678@localhost:3306/db_Mupoline";
 
 // Settings
-server.set('port', process.env.PORT ? process.env.PORT : 5005);
-server.set('port_front', process.env.PORT_FRONT ? process.env.PORT_FRONT : 3001);
+server.set('port', process.env.PORT || 5005);
+server.set('host', process.env.HOST || 'localhost');
+server.set('port_front', process.env.PORT_FRONT || 3001);
+server.set('host_front', process.env.HOST_FRONT || 'localhost');
 
 // Middlewares
-server.use(cors({ origin: `http://localhost:${server.get('port_front')}`, credentials: true }));
-console.log(`Front: http://localhost:${server.get('port_front')}`);
 server.use(express.json());
-server.use(express.urlencoded({ extended: false }));
+server.use(express.urlencoded({ extended: true }));
+server.use(express.static('public'));
+server.use(cors({ origin: `http://${server.get('host_front')}:${server.get('port_front')}`, credentials: true }));
 server.use(morgan('dev'));
 
-// Serve static files from the 'uploads' directory
-server.use('/uploads', express.static('uploads'));
-
 // Routes
-server.use('/api/workers', workerRoutes);
-server.use('/api/artworks', artworkRouter);
+server.use(workerRoutes);
+server.use(artworkRouter);
 
+// Middleware routes Not found
+server.use((req, res) => { res.status(404).json({ status: false, errors: 'Not found' })});
+
+// Exporting server
 export default server;

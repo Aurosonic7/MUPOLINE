@@ -1,9 +1,8 @@
 import server from './server.js';
 
-async function main() {
+async function startService() {
   server.listen(server.get('port'));
-  console.log(`Back: http://localhost:${server.get('port')}/api`);
-  server.get('/api', (req, res) => { res.send({ message: "Server active..." }); });
+  console.log(`Back-End: http://${server.get('host')}:${server.get('port')}/api`);
 }
 
-main();
+startService();
