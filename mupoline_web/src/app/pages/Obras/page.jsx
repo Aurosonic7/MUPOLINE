@@ -5,8 +5,13 @@ import ModalDelete from '@/app/components/Modals/ModalDeleteObra';
 import { HiOutlineDownload } from "react-icons/hi";
 import { MdDeleteForever, MdModeEdit } from "react-icons/md";
 import { getAllArtworks } from '@/app/api/artworks';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const Obras = () => {
+    const { data: session, status, data } = useSession();
+    const router = useRouter();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [obraToEdit, setObraToEdit] = useState(null);
@@ -14,17 +19,31 @@ const Obras = () => {
     const [obras, setObras] = useState([]);
 
     useEffect(() => {
+        if (status === "unauthenticated") {
+            router.push("/pages/login");
+        }
+    }, [status, router]);
+
+    useEffect(() => {
         const fetchArtworks = async () => {
             try {
                 const artworks = await getAllArtworks();
-                setObras(artworks);
+                console.log(artworks);
+                setObras(Array.isArray(artworks.artworks) ? artworks.artworks : []); // Asegúrate de que sea un array
             } catch (error) {
                 console.error('Failed to fetch artworks', error);
+                setObras([]); // Maneja el error estableciendo un array vacío
             }
         };
 
         fetchArtworks();
     }, []);
+
+    useEffect(() => {
+        if (status === "authenticated") {
+            router.push("/pages/Obras");
+        }
+    }, [status, data, router]);
 
     const openModalAdd = () => {
         setIsModalOpen(true);
@@ -55,6 +74,10 @@ const Obras = () => {
         setObraToEdit(null);
     };
 
+    if (status === "unauthenticated" || status === "loading" || !session) {
+        return null;
+    }
+
     return (
         <div>
             <h1 className='text-center'>Obras</h1>
@@ -64,7 +87,7 @@ const Obras = () => {
                     Agregar Obra
                 </button>
             </div>
-            <div className='m-4'>
+            <div className='m-4 overflow-x-auto'>
                 <table className="table-auto border-collapse border border-black w-full">
                     <thead style={{ background: 'rgba(85, 47, 2, 0.82)' }} className="text-white">
                         <tr>
@@ -73,6 +96,7 @@ const Obras = () => {
                             <th className="border border-black px-4 py-2">Descripción de la obra en texto</th>
                             <th className="border border-black px-4 py-2">Descripción de la obra en audio</th>
                             <th className="border border-black px-4 py-2">Imagen</th>
+                            <th className="border border-black px-4 py-2">QR</th>
                             <th className="border border-black px-4 py-2">Acciones</th>
                         </tr>
                     </thead>
@@ -83,10 +107,15 @@ const Obras = () => {
                                 <td className="border border-black px-4 py-2">{obra.title}</td>
                                 <td className="border border-black px-4 py-2">{obra.description}</td>
                                 <td className="border border-black px-4 py-2">
-                                    {obra.audio && <audio controls src={`http://localhost:5001/${obra.audio}`}></audio>}
+                                    {obra.audio && <audio controls src={`http://localhost:5001/uploads/${obra.audio}`}></audio>}
                                 </td>
                                 <td className="border border-black px-4 py-2">
-                                    {obra.image && <img src={`http://localhost:5001/${obra.image}`} alt={obra.title} className="w-16 h-16 object-cover" />}
+                                    {obra.image && <img src={`http://localhost:5001/uploads/${obra.image}`} alt={obra.title} className="w-16 h-16 object-cover" />}
+                                </td>
+                                <td className="border border-black px-4 py-2 justify-center">
+                                    <button style={{ background: 'rgba(185, 115, 34, 0.72)' }} className='flex items-center justify-center h-10 w-10 rounded-xl    '>
+                                        <HiOutlineDownload />
+                                    </button>
                                 </td>
                                 <td className="border border-black px-4 py-2">
                                     <div className="flex items-center space-x-2">

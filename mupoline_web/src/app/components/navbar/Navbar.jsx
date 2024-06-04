@@ -20,6 +20,7 @@ const Navbar = () => {
     };
 
     const menuLinks = [
+        { href: "/", label: "Inicio", visible: true },
         { href: "/#nosotros", label: "Nosotros", visible: true },
         { href: "/pages/Obras", label: "Obras", visible: status === "authenticated" },
         { href: "/pages/Administradores", label: "Trabajadores", visible: status === "authenticated" && data?.user?.isAdmin },

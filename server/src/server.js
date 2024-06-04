@@ -28,6 +28,9 @@ server.use(morgan('dev'));
 server.use(workerRoutes);
 server.use(artworkRouter);
 
+//Archivos de public/uploads
+server.use('/uploads', express.static('public/uploads'));
+
 // Middleware routes Not found
 server.use((req, res) => { res.status(404).json({ status: false, errors: 'Not found' })});
 

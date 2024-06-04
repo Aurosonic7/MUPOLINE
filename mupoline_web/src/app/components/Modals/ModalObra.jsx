@@ -3,21 +3,29 @@ import React, { useState } from 'react';
 const ModalObra = ({ isOpen, onClose,  isEditMode, obra  }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [archivo, setArchivo] = useState(null);
+    const [audio, setAudio] = useState(null);
+    const [imagen, setImagen] = useState(null);
+    const obraId = obra ? obra.id : null;
 
     const handleTitleChange = (e) => { setTitle(e.target.value); };
     const handleDescriptionChange = (e) => { setDescription(e.target.value); };
 
-    const handleArchivoChange = (e) => {
+    const handleAudioChange = (e) => {
         const file = e.target.files[0];
-        if (file) setArchivo(file.name);
+        if (file) setAudio(file.name);
+    };
+
+    const handleImagenChange = (e) => {
+        const file = e.target.files[0];
+        if (file) setImagen(file.name);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Título:', title);
         console.log('Descripción:', description);
-        console.log('Archivo:', archivo);
+        console.log('Audio:', audio);
+        console.log('Imagen:', imagen);
         onClose();
     };
 
@@ -44,12 +52,22 @@ const ModalObra = ({ isOpen, onClose,  isEditMode, obra  }) => {
                             </div>
 
                             <div className="flex items-center justify-between mb-4">
-                                <label htmlFor="archivo" className="block text-sm font-medium text-gray-700">Archivo de audio</label>
+                                <label htmlFor="audio" className="block text-sm font-medium text-gray-700">Archivo de audio</label>
                                 <div className="flex items-center">
-                                    <input type="file" id="archivo" onChange={handleArchivoChange}
+                                    <input type="file" id="audio" onChange={handleAudioChange}
                                         className="hidden"  required />
-                                    {archivo && <p className="ml-4 text-sm text-gray-700 mr-5">{archivo}</p>}
-                                    <label htmlFor="archivo" className="px-4 py-2 bg-black text-white rounded-full cursor-pointer hover:bg-gray-900">Adjuntar</label>
+                                    {audio && <p className="ml-4 text-sm text-gray-700 mr-5">{audio}</p>}
+                                    <label htmlFor="audio" className="px-4 py-2 bg-black text-white rounded-full cursor-pointer hover:bg-gray-900">Adjuntar</label>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between mb-4">
+                                <label htmlFor="imagen" className="block text-sm font-medium text-gray-700">Imagen</label>
+                                <div className="flex items-center">
+                                    <input type="file" id="imagen" onChange={handleImagenChange}
+                                        className="hidden"  required />
+                                    {imagen && <p className="ml-4 text-sm text-gray-700 mr-5">{imagen}</p>}
+                                    <label htmlFor="imagen" className="px-4 py-2 bg-black text-white rounded-full cursor-pointer hover:bg-gray-900">Adjuntar</label>
                                 </div>
                             </div>
 
