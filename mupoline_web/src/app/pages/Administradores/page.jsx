@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { getWorkers, deleteWorker, updateWorker } from '@/app/api/workers';
 
 const Trabajadores = () => {
-    const { data: session, status, data } = useSession();
+    const { data: token, status, data } = useSession();
     const router = useRouter();
 
     const [workers, setWorkers] = useState([]);
@@ -101,7 +101,7 @@ const Trabajadores = () => {
         }
     };
 
-    if (status === "unauthenticated" || !data?.user?.isAdmin || status === "loading" || !session) {
+    if (status === "unauthenticated" || !data?.user?.isAdmin || status === "loading" || !token) {
         return null;
     }
 

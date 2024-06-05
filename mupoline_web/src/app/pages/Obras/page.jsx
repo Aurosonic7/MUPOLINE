@@ -4,12 +4,12 @@ import ModalObra from '@/app/components/Modals/ModalObra';
 import ModalDelete from '@/app/components/Modals/ModalDeleteObra';
 import { HiOutlineDownload } from "react-icons/hi";
 import { MdDeleteForever, MdModeEdit } from "react-icons/md";
-import { getAllArtworks } from '@/app/api/artworks';
+import { getAllArtworks, deleteArtwork } from '@/app/api/artworks';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 const Obras = () => {
-    const { data: session, status, data } = useSession();
+    const { data: token, status, data } = useSession();
     const router = useRouter();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,7 +17,7 @@ const Obras = () => {
     const [obraToEdit, setObraToEdit] = useState(null);
     const [isEliminarModalOpen, setIsEliminarModalOpen] = useState(false);
     const [obras, setObras] = useState([]);
-
+    const workerid = data?.user?.id;
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/pages/login");
@@ -64,17 +64,30 @@ const Obras = () => {
         setIsEliminarModalOpen(false);
     };
 
-    const openEliminarModal = (obra) => {
+    const openEliminarModal = (idobra) => {
+        const obra = obras.find((obra) => obra === idobra);
         setIsEliminarModalOpen(true);
         setObraToEdit(obra);
     };
 
-    const handleDelete = () => {
-        setIsEliminarModalOpen(false);
-        setObraToEdit(null);
+    const handleDelete = async () => {
+        if (!obraToEdit) {
+            console.error('No hay obra seleccionada para eliminar');
+            return;
+        }
+        try {
+            await deleteArtwork(obraToEdit.id);
+            const updatedArtworks = obras.filter((obra) => obra.id !== obraToEdit.id);
+            setObras(updatedArtworks);
+            setIsEliminarModalOpen(false);
+            setObraToEdit(null);
+            console.log(`Obra con id ${obraToEdit.id} eliminada exitosamente`);
+        } catch (error) {
+            console.error('Error al eliminar obra:', error);
+        }
     };
 
-    if (status === "unauthenticated" || status === "loading" || !session) {
+    if (status === "unauthenticated" || status === "loading" || !token) {
         return null;
     }
 
@@ -134,7 +147,7 @@ const Obras = () => {
                     </tbody>
                 </table>
             </div>
-            <ModalObra isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} obra={obraToEdit} />
+            <ModalObra isOpen={isModalOpen} onClose={closeModal} isEditMode={isEditMode} obra={obraToEdit} workerid={workerid} />
             <ModalDelete isOpen={isEliminarModalOpen} onClose={closeModal} obra={obraToEdit} onConfirm={handleDelete} />
         </div>
     );

@@ -1,31 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createArtwork, updateArtwork } from '@/app/api/artworks';
+import Swal from 'sweetalert2';
 
-const ModalObra = ({ isOpen, onClose,  isEditMode, obra  }) => {
+const ModalObra = ({ isOpen, onClose, isEditMode, obra, workerid }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [audio, setAudio] = useState(null);
-    const [imagen, setImagen] = useState(null);
+    const [image, setImage] = useState(null);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const obraId = obra ? obra.id : null;
+    useEffect(() => {
+        if (!isEditMode) { 
+            setTitle('');
+            setDescription('');
+            setAudio(null);
+            setImage(null);
+        } else if (obra) { 
+            setTitle(obra.title);
+            setDescription(obra.description);
+            setAudio(obra.audio);
+            setImage(obra.image);
+        }
+    }, [isOpen]);
+    
 
     const handleTitleChange = (e) => { setTitle(e.target.value); };
     const handleDescriptionChange = (e) => { setDescription(e.target.value); };
 
     const handleAudioChange = (e) => {
         const file = e.target.files[0];
-        if (file) setAudio(file.name);
+        if (file) setAudio(file);
     };
 
     const handleImagenChange = (e) => {
         const file = e.target.files[0];
-        if (file) setImagen(file.name);
+        if (file) setImage(file);
     };
 
-    const handleSubmit = (e) => {
+    useEffect(() => {
+        if (successMessage) {
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 1500,
+                width: '250px',
+            }).then(() => {
+                window.location.reload();
+            });
+        }
+    }, [successMessage]);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Título:', title);
-        console.log('Descripción:', description);
-        console.log('Audio:', audio);
-        console.log('Imagen:', imagen);
+        if (!audio) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Por favor, adjunta un archivo de audio.',
+                width: '250px'
+            });
+            return;
+        }
+    
+        try {
+            if (isEditMode) {
+                await updateArtwork(obraId, title, description, audio, image, workerid);
+                setSuccessMessage('Obra actualizada');
+            } else {
+                await createArtwork(title, description, audio, image, workerid);
+                setSuccessMessage('Obra registrada');
+            }
+        } catch (error) {
+            console.error('Error', error.message);
+            if (error.response) {
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                console.log(error.request);
+            }
+            console.log(error.config);
+        }
+
         onClose();
     };
 
@@ -54,9 +113,9 @@ const ModalObra = ({ isOpen, onClose,  isEditMode, obra  }) => {
                             <div className="flex items-center justify-between mb-4">
                                 <label htmlFor="audio" className="block text-sm font-medium text-gray-700">Archivo de audio</label>
                                 <div className="flex items-center">
-                                    <input type="file" id="audio" onChange={handleAudioChange}
-                                        className="hidden"  required />
-                                    {audio && <p className="ml-4 text-sm text-gray-700 mr-5">{audio}</p>}
+                                    <input type="file" id="audio" name='audio' onChange={handleAudioChange}
+                                        className="hidden" />
+                                    {audio && <p className="ml-4 text-sm text-gray-700 mr-5">{audio ? audio : audio.name}</p>}
                                     <label htmlFor="audio" className="px-4 py-2 bg-black text-white rounded-full cursor-pointer hover:bg-gray-900">Adjuntar</label>
                                 </div>
                             </div>
@@ -64,9 +123,9 @@ const ModalObra = ({ isOpen, onClose,  isEditMode, obra  }) => {
                             <div className="flex items-center justify-between mb-4">
                                 <label htmlFor="imagen" className="block text-sm font-medium text-gray-700">Imagen</label>
                                 <div className="flex items-center">
-                                    <input type="file" id="imagen" onChange={handleImagenChange}
-                                        className="hidden"  required />
-                                    {imagen && <p className="ml-4 text-sm text-gray-700 mr-5">{imagen}</p>}
+                                    <input type="file" id="imagen" name='imagen' onChange={handleImagenChange}
+                                        className="hidden" />
+                                    {image && <p className="ml-4 text-sm text-gray-700 mr-5">{image ? image : image.name}</p>}
                                     <label htmlFor="imagen" className="px-4 py-2 bg-black text-white rounded-full cursor-pointer hover:bg-gray-900">Adjuntar</label>
                                 </div>
                             </div>
