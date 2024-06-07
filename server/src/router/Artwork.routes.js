@@ -7,10 +7,10 @@ const router = express.Router();
 router.route('/api/artworks')
   .get(getArtworks)
   .post(upload.fields([{ name: 'image', maxCount: 1 }, { name: 'audio', maxCount: 1 }]), createArtwork);
+
 router.route('/api/artworks/:id')
   .get(getArtworks)
-  .put(upload.fields([{ name: 'image', maxCount: 1 }, { name: 'audio', maxCount: 1 }]), updateArtwork).delete(deleteArtwork)
+  .put(upload.fields([{ name: 'image', maxCount: 1 }, { name: 'audio', maxCount: 1 }]), updateArtwork)
   .delete(deleteArtwork);
-
 
 export default router;

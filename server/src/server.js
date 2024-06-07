@@ -17,6 +17,7 @@ server.set('host_front', process.env.HOST_FRONT || 'localhost');
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 server.use(express.static('public'));
+server.use('/uploads', express.static('public/uploads'));
 const corsOptions = {
   origin: `http://${server.get('host_front')}:${server.get('port_front')}`,
   credentials: true,
@@ -28,11 +29,8 @@ server.use(morgan('dev'));
 server.use(workerRoutes);
 server.use(artworkRouter);
 
-//Archivos de public/uploads
-server.use('/uploads', express.static('public/uploads'));
-
 // Middleware routes Not found
-server.use((req, res) => { res.status(404).json({ status: false, errors: 'Not found' })});
+server.use((req, res) => { res.status(404).json({ status: false, errors: 'Not found' }) });
 
 // Exporting server
 export default server;

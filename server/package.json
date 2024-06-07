@@ -14,11 +14,14 @@
   "dependencies": {
     "@prisma/client": "^5.14.0",
     "body-parser": "^1.20.2",
+    "cloudinary": "^2.2.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
+    "dropbox": "^10.34.0",
     "express": "^4.19.2",
     "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "qrcode": "^1.5.3"
   },
   "devDependencies": {
     "prisma": "^5.13.0"
