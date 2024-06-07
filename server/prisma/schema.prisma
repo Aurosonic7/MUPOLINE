@@ -13,7 +13,7 @@ model Artwork {
   description String  @db.VarChar(255)
   audio       String? @db.VarChar(255)
   image       String? @db.VarChar(255)
-  QRCode      String? @db.VarChar(255)
+  QRCode      String  @db.Text
   workerid    Int //! many to one relation
 
   createdAt DateTime? @default(now())

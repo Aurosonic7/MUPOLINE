@@ -16,8 +16,6 @@ server.set('host_front', process.env.HOST_FRONT || 'localhost');
 // Middlewares
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
-server.use(express.static('public'));
-server.use('/uploads', express.static('public/uploads'));
 const corsOptions = {
   origin: `http://${server.get('host_front')}:${server.get('port_front')}`,
   credentials: true,
