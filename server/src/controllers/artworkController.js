@@ -27,7 +27,7 @@ const uploadToDropbox = async (file) => {
 
 const deleteFromDropbox = async (url) => {
   try {
-    const path = url.split('/').pop().split('?')[0];
+    const path = url.split('/').pop().split('?')[0]; // Obtener el nombre del archivo desde la URL
     await dbx.filesDeleteV2({ path: '/' + path });
   } catch (error) {
     console.error('Error deleting file from Dropbox:', error);
@@ -77,7 +77,7 @@ export const createArtwork = async (req, res) => {
 
     const imageUrl = await uploadToDropbox(files.image);
     const audioUrl = await uploadToDropbox(files.audio);
-    const qrCodeUrl = await generateQRCode(imageUrl);
+    const qrCodeUrl = await generateQRCode(audioUrl); // Generar el código QR para la URL del audio
 
     const newArtwork = await prisma.artwork.create({
       data: {
@@ -117,13 +117,13 @@ export const updateArtwork = async (req, res) => {
     if (workerid) values.workerid = parseInt(workerid);
 
     if (files.image) {
-      await deleteFromDropbox(existingArtwork.image);
+      await deleteFromDropbox(existingArtwork.image); // Eliminar la imagen antigua de Dropbox
       values.image = await uploadToDropbox(files.image);
-      values.QRCode = await generateQRCode(values.image); 
     }
     if (files.audio) {
-      await deleteFromDropbox(existingArtwork.audio);
+      await deleteFromDropbox(existingArtwork.audio); // Eliminar el audio antiguo de Dropbox
       values.audio = await uploadToDropbox(files.audio);
+      values.QRCode = await generateQRCode(values.audio); // Generar un nuevo código QR para la nueva URL del audio
     }
 
     const validErrors = valid(title, description, workerid, files, false);
@@ -134,7 +134,7 @@ export const updateArtwork = async (req, res) => {
       res.status(400).json({ status: false, errors: validErrors });
     }
   } catch (error) {
-    console.error(error);
+    console.error(error); // Log the error for debugging
     res.status(500).json({ status: false, error: error.message, details: error });
   }
 };
