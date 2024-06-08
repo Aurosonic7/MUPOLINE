@@ -27,10 +27,11 @@ const uploadToDropbox = async (file) => {
 
 const deleteFromDropbox = async (url) => {
   try {
-    const path = url.split('/').pop().split('?')[0]; // Obtener el nombre del archivo desde la URL
+    const path = url.split('/').pop().split('?')[0];
     await dbx.filesDeleteV2({ path: '/' + path });
   } catch (error) {
     console.error('Error deleting file from Dropbox:', error);
+    throw new Error('Failed to delete file from Dropbox');
   }
 };
 
@@ -77,7 +78,7 @@ export const createArtwork = async (req, res) => {
 
     const imageUrl = await uploadToDropbox(files.image);
     const audioUrl = await uploadToDropbox(files.audio);
-    const qrCodeUrl = await generateQRCode(audioUrl); // Generar el código QR para la URL del audio
+    const qrCodeUrl = await generateQRCode(audioUrl); 
 
     const newArtwork = await prisma.artwork.create({
       data: {
@@ -117,13 +118,13 @@ export const updateArtwork = async (req, res) => {
     if (workerid) values.workerid = parseInt(workerid);
 
     if (files.image) {
-      await deleteFromDropbox(existingArtwork.image); // Eliminar la imagen antigua de Dropbox
+      await deleteFromDropbox(existingArtwork.image);
       values.image = await uploadToDropbox(files.image);
     }
     if (files.audio) {
-      await deleteFromDropbox(existingArtwork.audio); // Eliminar el audio antiguo de Dropbox
+      await deleteFromDropbox(existingArtwork.audio);
       values.audio = await uploadToDropbox(files.audio);
-      values.QRCode = await generateQRCode(values.audio); // Generar un nuevo código QR para la nueva URL del audio
+      values.QRCode = await generateQRCode(values.audio);
     }
 
     const validErrors = valid(title, description, workerid, files, false);
@@ -134,25 +135,29 @@ export const updateArtwork = async (req, res) => {
       res.status(400).json({ status: false, errors: validErrors });
     }
   } catch (error) {
-    console.error(error); // Log the error for debugging
+    console.error(error); 
     res.status(500).json({ status: false, error: error.message, details: error });
   }
 };
 
 export const deleteArtwork = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const artwork = await prisma.artwork.findUnique({ where: { id: parseInt(id) } });
+  const { id } = req.params;
 
-    if (artwork) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      const artwork = await tx.artwork.findUnique({ where: { id: parseInt(id) } });
+      if (!artwork) {
+        throw new Error('Artwork not found');
+      }
+
       await deleteFromDropbox(artwork.image);
       await deleteFromDropbox(artwork.audio);
-      await prisma.artwork.delete({ where: { id: parseInt(id) } });
-      res.status(200).json({ status: true, message: 'Artwork deleted' });
-    } else {
-      res.status(404).json({ status: false, message: 'Artwork not found' });
-    }
+
+      await tx.artwork.delete({ where: { id: parseInt(id) } });
+    });
+
+    res.status(200).json({ status: true, message: 'Artwork deleted' });
   } catch (error) {
-    res.status(500).json({ status: false, error });
+    res.status(500).json({ status: false, error: error.message });
   }
 };
