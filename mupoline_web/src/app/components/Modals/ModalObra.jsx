@@ -30,12 +30,34 @@ const ModalObra = ({ isOpen, onClose, isEditMode, obra, workerid }) => {
 
     const handleAudioChange = (e) => {
         const file = e.target.files[0];
-        if (file) setAudio(file);
+        if (file) {
+            if (['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/aac', 'audio/flac', 'audio/mp4', 'audio/x-ms-wma'].includes(file.type)) {
+                setAudio(file);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Invalid audio file type.',
+                    width: '250px'
+                });
+            }
+        }
     };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        if (file) setImage(file);
+        if (file) {
+            if (['image/jpg', 'image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+                setImage(file);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Invalid image file type.',
+                    width: '250px'
+                });
+            }
+        }
     };
 
     useEffect(() => {
@@ -55,11 +77,11 @@ const ModalObra = ({ isOpen, onClose, isEditMode, obra, workerid }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!audio && !isEditMode) {
+        if ((!audio || !image) && !isEditMode) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Por favor, adjunta un archivo de audio.',
+                text: 'Por favor, adjunta los archivos de audio e imagen.',
                 width: '250px'
             });
             return;

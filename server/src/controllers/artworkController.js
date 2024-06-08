@@ -8,6 +8,7 @@ const dbx = new Dropbox({ accessToken: process.env.ACCESS_TOKEN_DROPBOX });
 const valid = (title, description, workerid, files = {}, isFileRequired = false) => {
   const errors = [];
   if (isFileRequired && (!files.image || !files.audio)) errors.push('Both image and audio files are required');
+  if (!title || !description || !workerid) errors.push('All fields are required');
   if (errors.length) {
     return errors.join(', ');
   }
@@ -20,18 +21,14 @@ const uploadToDropbox = async (file) => {
       path: '/' + file.originalname,
       contents: file.buffer,
     });
-    // console.log('Upload Response:', uploadResponse);
 
     const linkResponse = await dbx.sharingCreateSharedLinkWithSettings({
       path: uploadResponse.result.path_lower,
     });
-    // console.log('Link Response:', linkResponse);
 
     const rawUrl = linkResponse.result.url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '');
-    // console.log('Generated Raw Image URL:', rawUrl);
     return rawUrl;
   } catch (error) {
-    // console.error('Error uploading to Dropbox:', error);
     throw error;
   }
 };
@@ -55,23 +52,10 @@ const generateQRCode = async (url) => {
   }
 };
 
-export const getArtworks = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const artworks = id ? await prisma.artwork.findUnique({ where: { id: parseInt(id) } }) : await prisma.artwork.findMany();
-    res.status(200).json({ status: true, artworks });
-  } catch (error) {
-    res.status(500).json({ status: false, error });
-  }
-};
-
 export const createArtwork = async (req, res) => {
   try {
     const { title, description, workerid } = req.body;
-    const files = {
-      image: req.files.image ? req.files.image[0] : null,
-      audio: req.files.audio ? req.files.audio[0] : null,
-    };
+    const files = req.files; // Aquí estamos obteniendo los archivos
 
     if (!workerid) 
       return res.status(400).json({ status: false, errors: 'Worker ID is required' });
@@ -86,9 +70,9 @@ export const createArtwork = async (req, res) => {
       return res.status(400).json({ status: false, errors: validErrors });
     }
 
-    const imageUrl = await uploadToDropbox(files.image);
+    const imageUrl = await uploadToDropbox(files.image[0]); // Aquí estamos subiendo la imagen
     console.log('Generated Image URL:', imageUrl);
-    const audioUrl = await uploadToDropbox(files.audio);
+    const audioUrl = await uploadToDropbox(files.audio[0]); // Aquí estamos subiendo el audio
     console.log('Generated Audio URL:', audioUrl);
     const qrCodeUrl = await generateQRCode(audioUrl); 
 
@@ -114,10 +98,7 @@ export const updateArtwork = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, workerid } = req.body;
-    const files = {
-      image: req.files.image ? req.files.image[0] : null,
-      audio: req.files.audio ? req.files.audio[0] : null,
-    };
+    const files = req.files;
 
     const existingArtwork = await prisma.artwork.findUnique({ where: { id: parseInt(id) } });
     if (!existingArtwork) {
@@ -132,11 +113,11 @@ export const updateArtwork = async (req, res) => {
 
     if (files.image) {
       await deleteFromDropbox(existingArtwork.image);
-      values.image = await uploadToDropbox(files.image);
+      values.image = await uploadToDropbox(files.image[0]);
     }
     if (files.audio) {
       await deleteFromDropbox(existingArtwork.audio);
-      values.audio = await uploadToDropbox(files.audio);
+      values.audio = await uploadToDropbox(files.audio[0]);
       values.QRCode = await generateQRCode(values.audio);
     }
 
@@ -172,5 +153,15 @@ export const deleteArtwork = async (req, res) => {
     res.status(200).json({ status: true, message: 'Artwork deleted' });
   } catch (error) {
     res.status(500).json({ status: false, error: error.message });
+  }
+};
+
+export const getArtworks = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const artworks = id ? await prisma.artwork.findUnique({ where: { id: parseInt(id) } }) : await prisma.artwork.findMany();
+    res.status(200).json({ status: true, artworks });
+  } catch (error) {
+    res.status(500).json({ status: false, error });
   }
 };

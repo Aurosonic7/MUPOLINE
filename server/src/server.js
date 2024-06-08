@@ -14,8 +14,8 @@ server.set('port_front', process.env.PORT_FRONT || 3001);
 server.set('host_front', process.env.HOST_FRONT || 'localhost');
 
 // Middlewares
-server.use(express.json());
-server.use(express.urlencoded({ extended: true }));
+server.use(express.json({ limit: '50mb' }));
+server.use(express.urlencoded({ extended: true, limit: '50mb' }));
 const corsOptions = {
   origin: `http://${server.get('host_front')}:${server.get('port_front')}`,
   credentials: true,
