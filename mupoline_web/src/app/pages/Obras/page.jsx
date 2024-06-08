@@ -18,6 +18,7 @@ const Obras = () => {
     const [isEliminarModalOpen, setIsEliminarModalOpen] = useState(false);
     const [obras, setObras] = useState([]);
     const workerid = data?.user?.id;
+    
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/pages/login");
@@ -29,10 +30,10 @@ const Obras = () => {
             try {
                 const artworks = await getAllArtworks();
                 console.log(artworks);
-                setObras(Array.isArray(artworks.artworks) ? artworks.artworks : []); // Asegúrate de que sea un array
+                setObras(Array.isArray(artworks.artworks) ? artworks.artworks : []);
             } catch (error) {
                 console.error('Failed to fetch artworks', error);
-                setObras([]); // Maneja el error estableciendo un array vacío
+                setObras([]);
             }
         };
 
@@ -65,7 +66,7 @@ const Obras = () => {
     };
 
     const openEliminarModal = (idobra) => {
-        const obra = obras.find((obra) => obra === idobra);
+        const obra = obras.find((obra) => obra.id === idobra);
         setIsEliminarModalOpen(true);
         setObraToEdit(obra);
     };
@@ -95,8 +96,7 @@ const Obras = () => {
         <div>
             <h1 className='text-center'>Obras</h1>
             <div className="grid justify-items-end">
-                <button className="bg-[#E3DE65] text-black px-4 py-2 mt-4 mr-10 rounded-full"
-                    onClick={openModalAdd} >
+                <button className="bg-[#E3DE65] text-black px-4 py-2 mt-4 mr-10 rounded-full" onClick={openModalAdd} >
                     Agregar Obra
                 </button>
             </div>
@@ -120,24 +120,24 @@ const Obras = () => {
                                 <td className="border border-black px-4 py-2">{obra.title}</td>
                                 <td className="border border-black px-4 py-2">{obra.description}</td>
                                 <td className="border border-black px-4 py-2">
-                                    {obra.audio && <audio controls src={`http://localhost:5001/uploads/${obra.audio}`}></audio>}
+                                    {obra.audio && <audio controls src={obra.audio}></audio>}
                                 </td>
                                 <td className="border border-black px-4 py-2">
-                                    {obra.image && <img src={`http://localhost:5001/uploads/${obra.image}`} alt={obra.title} className="w-16 h-16 object-cover" />}
+                                    {obra.image && <img src={obra.image} alt={obra.title} className="w-16 h-16 object-cover" />}
                                 </td>
-                                <td className="border border-black px-4 py-2 justify-center">
-                                    <button style={{ background: 'rgba(185, 115, 34, 0.72)' }} className='flex items-center justify-center h-10 w-10 rounded-xl    '>
-                                        <HiOutlineDownload />
-                                    </button>
+                                <td className="border border-black px-4 py-2">
+                                    {obra.QRCode && (
+                                        <a href={obra.QRCode} download={`QRCode-${obra.title}.png`} className="flex items-center justify-center h-10 w-10 rounded-xl bg-gray-300">
+                                            <HiOutlineDownload />
+                                        </a>
+                                    )}
                                 </td>
                                 <td className="border border-black px-4 py-2">
                                     <div className="flex items-center space-x-2">
-                                        <button className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500 cursor-pointer"
-                                            onClick={() => openEliminarModal(obra)}>
+                                        <button className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500 cursor-pointer" onClick={() => openEliminarModal(obra.id)}>
                                             <MdDeleteForever className="text-white" />
                                         </button>
-                                        <button className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500 cursor-pointer"
-                                            onClick={() => openModalEdit(obra)}>
+                                        <button className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500 cursor-pointer" onClick={() => openModalEdit(obra)}>
                                             <MdModeEdit className="text-white" />
                                         </button>
                                     </div>

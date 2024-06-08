@@ -11,7 +11,7 @@ const Carrusel = () => {
     const fetchArtworks = async () => {
       try {
         const artworks = await getAllArtworks();
-        console.log(artworks);
+        console.log('Fetched Artworks:', artworks); // Verificar las obras obtenidas
         setObras(Array.isArray(artworks.artworks) ? artworks.artworks : []);
       } catch (error) {
         console.error('Failed to fetch artworks', error);
@@ -45,7 +45,7 @@ const Carrusel = () => {
             {obras.map((obra, index) => (
               <div key={index} className="w-screen h-96 flex-shrink-0 flex">
                 <div className="w-1/2 flex-shrink-0 overflow-hidden">
-                  <img src={`http://localhost:5001/uploads/${obra.image}`} alt={obra.title} className="w-full h-full object-cover" />
+                  <img src={obra.image} alt={obra.title} className="w-full h-full object-cover" onError={(e) => console.error('Error loading image:', e)} />
                 </div>
                 <div className="w-1/2 flex justify-center items-center">
                   <div className="text-white w-3/4">

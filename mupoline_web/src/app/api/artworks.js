@@ -22,7 +22,7 @@ export const createArtwork = async (title, description, audio, image, workerid) 
       formData.append('image', image);
     }
 
-    const response = await axios.post('/artworks/', formData, {
+    const response = await axios.post('/artworks', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

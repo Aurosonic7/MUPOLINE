@@ -15,14 +15,25 @@ const valid = (title, description, workerid, files = {}, isFileRequired = false)
 };
 
 const uploadToDropbox = async (file) => {
-  const uploadResponse = await dbx.filesUpload({
-    path: '/' + file.originalname,
-    contents: file.buffer,
-  });
-  const linkResponse = await dbx.sharingCreateSharedLinkWithSettings({
-    path: uploadResponse.result.path_lower,
-  });
-  return linkResponse.result.url.replace('?dl=0', '?raw=1');
+  try {
+    const uploadResponse = await dbx.filesUpload({
+      path: '/' + file.originalname,
+      contents: file.buffer,
+    });
+    // console.log('Upload Response:', uploadResponse);
+
+    const linkResponse = await dbx.sharingCreateSharedLinkWithSettings({
+      path: uploadResponse.result.path_lower,
+    });
+    // console.log('Link Response:', linkResponse);
+
+    const rawUrl = linkResponse.result.url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '');
+    // console.log('Generated Raw Image URL:', rawUrl);
+    return rawUrl;
+  } catch (error) {
+    // console.error('Error uploading to Dropbox:', error);
+    throw error;
+  }
 };
 
 const deleteFromDropbox = async (url) => {
@@ -62,14 +73,13 @@ export const createArtwork = async (req, res) => {
       audio: req.files.audio ? req.files.audio[0] : null,
     };
 
-    if (!workerid) {
+    if (!workerid) 
       return res.status(400).json({ status: false, errors: 'Worker ID is required' });
-    }
 
     const existingWorker = await prisma.worker.findUnique({ where: { id: parseInt(workerid) } });
-    if (!existingWorker) {
+    if (!existingWorker)
       return res.status(400).json({ status: false, errors: 'Worker ID does not exist' });
-    }
+    
 
     const validErrors = valid(title, description, workerid, files, true);
     if (validErrors) {
@@ -77,7 +87,9 @@ export const createArtwork = async (req, res) => {
     }
 
     const imageUrl = await uploadToDropbox(files.image);
+    console.log('Generated Image URL:', imageUrl);
     const audioUrl = await uploadToDropbox(files.audio);
+    console.log('Generated Audio URL:', audioUrl);
     const qrCodeUrl = await generateQRCode(audioUrl); 
 
     const newArtwork = await prisma.artwork.create({
@@ -90,6 +102,7 @@ export const createArtwork = async (req, res) => {
         QRCode: qrCodeUrl,
       },
     });
+    
     res.status(201).json({ status: true, message: 'Artwork created', newArtwork });
   } catch (error) {
     console.error(error); // Log the error for debugging
