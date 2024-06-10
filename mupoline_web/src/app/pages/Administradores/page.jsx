@@ -6,6 +6,7 @@ import { MdDeleteForever, MdModeEdit } from "react-icons/md";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getWorkers, deleteWorker, updateWorker } from '@/app/api/workers';
+import Swal from 'sweetalert2';
 
 const Trabajadores = () => {
     const { data: token, status, data } = useSession();
@@ -78,7 +79,16 @@ const Trabajadores = () => {
             setWorkers(updatedWorkers);
             setIsEliminarModalOpen(false);
             setEmpleadoToEdit(null);
-            console.log(`Trabajador con id ${empleadoToEdit.id} eliminado exitosamente`);
+            //console.log(`Trabajador con id ${empleadoToEdit.id} eliminado exitosamente`);
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Empleado eliminado',
+                text: `Empleado eliminado exitosamente.`,
+                showConfirmButton: false,
+                timer: 1500,
+                width: '250px',
+            });
         } catch (error) {
             console.error('Error al eliminar trabajador:', error);
         }
