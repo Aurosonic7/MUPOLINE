@@ -9,6 +9,7 @@ const ModalObra = ({ isOpen, onClose, isEditMode, obra, workerid }) => {
     const [image, setImage] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [loading, setLoading] = useState(false);
     const obraId = obra ? obra.id : null;
 
     useEffect(() => {
@@ -32,12 +33,28 @@ const ModalObra = ({ isOpen, onClose, isEditMode, obra, workerid }) => {
         const file = e.target.files[0];
         if (file) {
             if (['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/aac', 'audio/flac', 'audio/mp4', 'audio/x-ms-wma'].includes(file.type)) {
-                setAudio(file);
+                const audio = new Audio(URL.createObjectURL(file));
+                audio.addEventListener('loadedmetadata', () => {
+                    const duration = audio.duration;
+                    const maxDuration = 190; //En segundos (3minutes)
+                    const minDuration = 10;  //En segundos
+
+                    if (duration >= minDuration && duration <= maxDuration) {
+                        setAudio(file);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: `Duracion de audio máximo 3 minutos.`,
+                            width: '250px'
+                        });
+                    }
+                });
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Invalid audio file type.',
+                    text: 'Tipo de archivo de audio no válido.',
                     width: '250px'
                 });
             }
@@ -47,13 +64,13 @@ const ModalObra = ({ isOpen, onClose, isEditMode, obra, workerid }) => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (['image/jpg', 'image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+            if (['image/jpg', 'image/jpeg', 'image/png'].includes(file.type)) {
                 setImage(file);
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Invalid image file type.',
+                    text: 'Tipo de archivo de imagen no válido',
                     width: '250px'
                 });
             }
@@ -77,6 +94,7 @@ const ModalObra = ({ isOpen, onClose, isEditMode, obra, workerid }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+    
         if ((!audio || !image) && !isEditMode) {
             Swal.fire({
                 icon: 'error',
@@ -86,7 +104,17 @@ const ModalObra = ({ isOpen, onClose, isEditMode, obra, workerid }) => {
             });
             return;
         }
-
+    
+        setLoading(true);
+        Swal.fire({
+            title: 'Cargando obra...',
+            text: 'Por favor espere.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    
         try {
             if (isEditMode) {
                 await updateArtwork(obraId, title, description, audio, image, workerid);
@@ -95,26 +123,52 @@ const ModalObra = ({ isOpen, onClose, isEditMode, obra, workerid }) => {
                 await createArtwork(title, description, audio, image, workerid);
                 setSuccessMessage('Obra registrada');
             }
-        } catch (error) {
-            console.error('Error', error.message);
-            if (error.response) {
-                console.log(error.response.data);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-            } else if (error.request) {
-                console.log(error.request);
-            }
-            console.log(error.config);
+    
             Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error al guardar la obra.',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 1500,
                 width: '250px'
+            }).then(() => {
+                setLoading(false);
+                onClose();
             });
+        }  catch (error) {
+        setLoading(false);
+
+        // Capturar el error específico 'shared_link_already_exists'
+        if (error.response && error.response.status === 409) {
+            const errorSummary = error.response.data.error_summary;
+            if (errorSummary && errorSummary.includes('shared_link_already_exists')) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Archivos de obra existentes',
+                    text: 'Los archivos ya tienen enlaces compartidos existentes.',
+                    width: '250px'
+                });
+                return;
+            }
         }
 
-        onClose();
-    };
+        console.error('Error', error.message);
+        if (error.response) {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+        } else if (error.request) {
+            console.log(error.request);
+        }
+        console.log(error.config);
+        
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al guardar la obra.',
+            width: '250px'
+        });
+    }
+    };    
 
     return (
         <>

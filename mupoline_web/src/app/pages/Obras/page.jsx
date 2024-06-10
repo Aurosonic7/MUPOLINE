@@ -7,6 +7,7 @@ import { MdDeleteForever, MdModeEdit } from "react-icons/md";
 import { getAllArtworks, deleteArtwork } from '@/app/api/artworks';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Swal from 'sweetalert2';
 
 const Obras = () => {
     const { data: token, status, data } = useSession();
@@ -18,7 +19,7 @@ const Obras = () => {
     const [isEliminarModalOpen, setIsEliminarModalOpen] = useState(false);
     const [obras, setObras] = useState([]);
     const workerid = data?.user?.id;
-    
+
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/pages/login");
@@ -76,15 +77,41 @@ const Obras = () => {
             console.error('No hay obra seleccionada para eliminar');
             return;
         }
+
+        Swal.fire({
+            title: 'Eliminando obra...',
+            text: 'Por favor espere.',
+            allowOutsideClick: false,
+            width: '250px',
+            onBeforeOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         try {
             await deleteArtwork(obraToEdit.id);
             const updatedArtworks = obras.filter((obra) => obra.id !== obraToEdit.id);
             setObras(updatedArtworks);
             setIsEliminarModalOpen(false);
             setObraToEdit(null);
-            console.log(`Obra con id ${obraToEdit.id} eliminada exitosamente`);
+            //console.log(`Obra con id ${obraToEdit.id} eliminada exitosamente`);
+
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Obra eliminada',
+                text: `Obra eliminada exitosamente.`,
+                showConfirmButton: false,
+                timer: 1500,
+                width: '250px',
+            });
         } catch (error) {
             console.error('Error al eliminar obra:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al eliminar la obra. Inténtalo de nuevo más tarde.',
+            });
         }
     };
 
@@ -127,7 +154,7 @@ const Obras = () => {
                                 </td>
                                 <td className="border border-black px-4 py-2">
                                     {obra.QRCode && (
-                                        <a href={obra.QRCode} download={`QRCode-${obra.title}.png`} className="flex items-center justify-center h-10 w-10 rounded-xl bg-gray-300">
+                                        <a href={obra.QRCode} download={`QRCode-${obra.title}.png`} className="flex items-center justify-center h-10 w-10 rounded-xl bg-[#B97322]">
                                             <HiOutlineDownload />
                                         </a>
                                     )}
