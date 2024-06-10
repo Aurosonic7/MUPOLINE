@@ -12,7 +12,12 @@ const Carrusel = () => {
       try {
         const artworks = await getAllArtworks();
         console.log('Fetched Artworks:', artworks); // Verificar las obras obtenidas
-        setObras(Array.isArray(artworks.artworks) ? artworks.artworks : []);
+
+        // Seleccionar aleatoriamente 5 obras
+        const shuffledArtworks = artworks.artworks.sort(() => 0.5 - Math.random());
+        const selectedArtworks = shuffledArtworks.slice(0, 5);
+
+        setObras(selectedArtworks);
       } catch (error) {
         console.error('Failed to fetch artworks', error);
         setObras([]);
@@ -41,7 +46,7 @@ const Carrusel = () => {
       )}
       {!isLoading && obras.length > 0 ? (
         <>
-          <div className="flex space-x-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+          <div className="flex space-x-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 104}%)` }}>
             {obras.map((obra, index) => (
               <div key={index} className="w-screen h-96 flex-shrink-0 flex">
                 <div className="w-1/2 flex-shrink-0 overflow-hidden">
